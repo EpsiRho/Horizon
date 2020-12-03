@@ -15,7 +15,7 @@
 	* Published to Github
 ### Beta 0.3.3
 * Changes
-	* Info Popup dissmisses when clicking the contacts pane and any button
+	* Info Popup dismisses when clicking the contacts pane and any button
 	* Removed blocking server popup
 	* Changed from Double click to single click with flyout
 	
