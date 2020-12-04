@@ -1,5 +1,6 @@
 # Horizon
 PTP File transfer built on UWP</br>
+## Requires Port 47 to be port forwarded on your router to recive files
 
 ## [Change Log](https://github.com/EpsiRho/Horizon/blob/main/Docs/Changelog.md)</br>
 
