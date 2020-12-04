@@ -1,0 +1,117 @@
+﻿<Page
+    x:Class="Horizon.Settings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Horizon"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls1="using:Microsoft.UI.Xaml.Controls" xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <AcrylicBrush x:Key="HelpBackgroundBrush"
+                          BackgroundSource="HostBackdrop"
+                          TintColor="Black"
+                          TintOpacity="0.8"
+                          FallbackColor="Black"/>
+                    <AcrylicBrush x:Key="ButtonAccentBrush"
+                          BackgroundSource="HostBackdrop"
+                          TintColor="{x:Bind AccentColor}"
+                          TintOpacity="0.5"
+                          FallbackColor="{x:Bind AccentColor}"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid Background="{ThemeResource HelpBackgroundBrush}">
+        <TextBlock Text="Settings" FontSize="36" HorizontalAlignment="Center" TextWrapping="Wrap" TextDecorations="Underline" Foreground="White"/>
+        <Button x:Name="BackButton" Grid.Row="0" VerticalAlignment="Top" Margin="10,10,0,0" Height="33" Click="BackButton_Click" Canvas.ZIndex="10" >
+            <StackPanel Orientation="Horizontal">
+                <SymbolIcon Symbol="Back" Margin="0,0,10,0" Foreground="White"/>
+                <TextBlock Text="Back" Foreground="White"/>
+            </StackPanel>
+        </Button>
+        <ScrollViewer>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="25,65,25,25">
+                <TextBlock Text="Change the main accent color around the application." Foreground="White" FontSize="24" Margin="0,0,25,0" TextWrapping="Wrap"/>
+                <Button Background="{ThemeResource ButtonAccentBrush}" x:Name="AccentButton" Canvas.ZIndex="15"  Click="AccentButton_Click" Foreground="White" FontSize="18">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Edit" Margin="0,0,10,0"/>
+                        <TextBlock Text="Accent Color"/>
+                    </StackPanel>
+                    <Button.Resources>
+                        <controls1:TeachingTip x:Name="AccentSwitcher"
+                                                Title="Change Accent Color"
+                                                Target="{x:Bind AccentButton}"
+                                                PreferredPlacement="Right">
+                            <ListBox SelectionChanged="ListBox_SelectionChanged" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                                <x:String>Default Blue</x:String>
+                                <x:String>Green</x:String>
+                                <x:String>Red</x:String>
+                                <x:String>Yellow</x:String>
+                                <x:String>Purple</x:String>
+                                <x:String>Pink</x:String>
+                            </ListBox>
+                        </controls1:TeachingTip>
+                    </Button.Resources>
+                </Button>
+                <TextBlock Text="Allow IPs that are not in your contacts list to send you files." Foreground="White" FontSize="24" Margin="0,0,25,0" TextWrapping="Wrap"/>
+                <Button Background="{ThemeResource ButtonAccentBrush}" x:Name="UnknownIpButton" Canvas.ZIndex="15"  Click="UnknownIpButton_Click" Foreground="White" FontSize="18">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Edit" Margin="0,0,10,0"/>
+                        <TextBlock Text="Allow Unknown IPs:" Margin="0,0,10,0"/>
+                        <TextBlock Text="{x:Bind UnkownIpAllow}" Foreground="White"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Text="Set the timeouts (in milliseconds) for Connection to the client and waiting for accept/deny" Foreground="White" FontSize="24" Margin="0,0,25,0" TextWrapping="Wrap"/>
+                <Button Background="{ThemeResource ButtonAccentBrush}" x:Name="ConnectionTimeoutButton" Canvas.ZIndex="15"  Click="ConnectionTimeoutButton_Click" Foreground="White" FontSize="18" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Edit" Margin="0,0,10,0"/>
+                        <TextBlock Text="Connection Timeout:" Margin="0,0,10,0"/>
+                        <TextBlock Text="{x:Bind ConnectionTimeout}" Foreground="White"/>
+                    </StackPanel>
+                    <Button.Resources>
+                        <controls1:TeachingTip x:Name="ConnectionTimeoutPopup"
+                                                Title="Change Connection Timeout"
+                                                Target="{x:Bind ConnectionTimeoutButton}"
+                                                PreferredPlacement="Right">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="ConnectionTimeoutTextBox" Margin="0,0,10,0" MinWidth="200"/>
+                                <Button x:Name="ConnectionPopupButton" Click="ConnectionPopupButton_Click">
+                                    <SymbolIcon Symbol="Accept"/>
+                                </Button>
+                            </StackPanel>
+                        </controls1:TeachingTip>
+                    </Button.Resources>
+                </Button>
+                <Button Background="{ThemeResource ButtonAccentBrush}" x:Name="AcceptTimeoutButton" Canvas.ZIndex="15"  Click="AcceptTimeoutButton_Click" Foreground="White" FontSize="18">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Edit" Margin="0,0,10,0"/>
+                        <TextBlock Text="Response Timeout:" Margin="0,0,10,0"/>
+                        <TextBlock Text="{x:Bind AcceptTimeout}" Foreground="White"/>
+                    </StackPanel>
+                    <Button.Resources>
+                        <controls1:TeachingTip x:Name="AcceptTimeoutPopup"
+                                                Title="Change Response Timeout"
+                                                Target="{x:Bind AcceptTimeoutButton}"
+                                                PreferredPlacement="Right">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="AcceptTimeoutTextBox" Margin="0,0,10,0" MinWidth="200"/>
+                                <Button x:Name="AcceptPopupButton" Click="AcceptPopupButton_Click">
+                                    <SymbolIcon Symbol="Accept"/>
+                                </Button>
+                            </StackPanel>
+                        </controls1:TeachingTip>
+                    </Button.Resources>
+                </Button>
+                <controls1:TeachingTip x:Name="TimeoutError"
+                                       Title="Error"
+                                       Subtitle="Input must be an Integer"
+                                       PreferredPlacement="Right">
+                </controls1:TeachingTip>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
