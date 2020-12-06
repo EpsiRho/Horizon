@@ -543,10 +543,7 @@ namespace Horizon
 
             if (file != null) // If the file is valid
             {
-                byte[] messageSent = Encoding.ASCII.GetBytes("HRZNACCEPT");
-                int byteSent = socketTrackers[0].sock.Send(messageSent);
-
-                Thread fileHandler = new Thread(FileSendRequestHandler);
+                Thread fileHandler = new Thread(FileSendToRequestingHandler);
                 fileHandler.Start(file);
             }
             else
@@ -1019,6 +1016,90 @@ namespace Horizon
                 return;
             }
         }
+        public async void FileSendToRequestingHandler(object data)
+        {
+            Windows.Storage.StorageFile file = (Windows.Storage.StorageFile)data;
+            Contact selectedItem = new Contact();
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                selectedItem = (Contact)ContactsListView.SelectedItem; // Get contact object
+            });
+            Windows.Storage.FileProperties.BasicProperties basicProperties = await file.GetBasicPropertiesAsync();
+            string fileSize = string.Format("{0:n0}", basicProperties.Size);
+            int id = 0;
+            Socket sock = socketTrackers[0].sock;
+            Connection ListItem = null;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ListItem = connectionsViewModel.AddConnection(file.Name, socketTrackers[0].args[2], sock);
+            });
+
+            try
+            {
+                if (!sock.Connected)
+                {
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
+                    return;
+                }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].progressBar = true;
+                });
+
+                string rq =
+                    "HRZNACCEPT/" +
+                    PublicIP +
+                    "/" +
+                    file.Name +
+                    "/" +
+                    fileSize;
+
+
+                byte[] messageSent = Encoding.ASCII.GetBytes(rq);
+                int byteSent = sock.Send(messageSent);
+
+                InfoPopup("Request Sent", "Waiting on Response");
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
+                byte[] buffer = new byte[10];
+                sock.BeginReceive(buffer, 0, 10, 0, new AsyncCallback(ReceiveAsync), ListItem);
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
+
+                string request = new string(Encoding.ASCII.GetChars(buffer));
+                if (request == "HRZNACCEPT")
+                {
+                    SendFile(sock, file);
+                }
+                else if (request == "HRZNDENY")
+                {
+                    InfoPopup("Send Canceled", "Client denied the request");
+                }
+                else
+                {
+                    sock.Close();
+                }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+            }
+            catch (Exception error)
+            {
+                InfoPopup("Socket Error", error.Message);
+                WriteLog("[Socket Failure] - " + error.Message + "\n");
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+                return;
+            }
+        }
         public async void FileReceiveRequestHandler()
         {
             Contact selectedItem = new Contact();
@@ -1066,15 +1147,20 @@ namespace Horizon
                 InfoPopup("Request Sent", "Waiting on Response");
 
                 connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
-                byte[] buffer = new byte[10];
-                sock.BeginReceive(buffer, 0, 10, 0, new AsyncCallback(ReceiveAsync), ListItem);
+                byte[] buffer = new byte[1024];
+                sock.BeginReceive(buffer, 0, 1024, 0, new AsyncCallback(ReceiveAsync), ListItem);
 
                 connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
 
                 string request = new string(Encoding.ASCII.GetChars(buffer));
-                if (request == "HRZNACCEPT")
+                if (request.Contains("HRZNACCEPT"))
                 {
-                    downloadFromClientAsync(socketTrackers[0]);
+                    string[] split = request.Split("/");
+                    if (split.Length == 4)
+                    {
+                        socketTrackers[0].args = split;
+                        downloadFromClientAsync(socketTrackers[0]);
+                    }
                 }
                 else if (request == "HRZNDENY")
                 {
