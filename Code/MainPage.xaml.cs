@@ -218,11 +218,21 @@ namespace Horizon
         }
         public void SendToastNotification(string[] args)
         {
-             var content = new ToastContentBuilder()
-                .AddText(ViewModel.searchByIp(args[1]) + " is sending you a file", hintMaxLines: 1)
-                .AddText(args[2])
-                .AddText(args[3])
-                .GetToastContent();
+            ToastContent content;
+            if (args.Length == 4)
+            {
+                 content = new ToastContentBuilder()
+                   .AddText(ViewModel.searchByIp(args[1]) + " is sending you a file", hintMaxLines: 1)
+                   .AddText(args[2])
+                   .AddText(args[3])
+                   .GetToastContent();
+            }
+            else
+            {
+                 content = new ToastContentBuilder()
+                   .AddText(ViewModel.searchByIp(args[2]) + " is requesting a file", hintMaxLines: 1)
+                   .GetToastContent();
+            }
 
             // Create the notification
             var notif = new ToastNotification(content.GetXml());
@@ -738,7 +748,7 @@ namespace Horizon
             {
                 name = split[1];
             }
-            //SendToastNotification(split);
+            SendToastNotification(split);
             try
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -769,7 +779,7 @@ namespace Horizon
             {
                 name = split[2];
             }
-            //SendToastNotification(split);
+            SendToastNotification(split);
             try
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -1153,6 +1163,8 @@ namespace Horizon
                 connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
 
                 string request = new string(Encoding.ASCII.GetChars(buffer));
+                request = request.Replace("\0", string.Empty);
+
                 if (request.Contains("HRZNACCEPT"))
                 {
                     string[] split = request.Split("/");
