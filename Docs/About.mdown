@@ -28,7 +28,12 @@ You can request files from a contact with their server open. This allows you to 
 ## Options
 There are a few settings you can use to adjust your Horizon experience. 
 - Accent color
-    - Blue, Green, Red, Yellow, Purple, and Pink
+    - ![#1EAED8](https://via.placeholder.com/15/1EAED8/000000?text=+) Blue, 
+    ![#2CBB32](https://via.placeholder.com/15/2CBB32/000000?text=+) Green,
+    ![#FF3030](https://via.placeholder.com/15/FF3030/000000?text=+) Red,
+    ![#E8FF00](https://via.placeholder.com/15/E8FF00/000000?text=+) Yellow,
+    ![#71039B](https://via.placeholder.com/15/71039B/000000?text=+) Purple, and
+    ![#FF00A2](https://via.placeholder.com/15/FF00A2/000000?text=+) Pink
 - Allow IPs not in your contacts
 - Connection timeout(the time to wait for a connection to a server *In Milliseconds*)
 - Request timeout(the time to wait for a contact to respond *In Milliseconds*)
