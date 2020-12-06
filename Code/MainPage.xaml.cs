@@ -466,6 +466,7 @@ namespace Horizon
             {
                 Connection ListItem = (Connection)ConnectionsView.SelectedItem;
                 connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Set();
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].sock.Close();
             }
             catch (Exception)
             {
@@ -561,6 +562,7 @@ namespace Horizon
                 InfoPopup("File Error", "File Access Denied");
                 WriteLog("[Filesystem] - Access Denied\n");
             }
+            CancelBool = false;
         }
         private void RequestFile_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
@@ -685,10 +687,11 @@ namespace Horizon
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                             {
                                 AcceptFile.Hide();
+                                RequestFile.Hide();
                             });
-                            ReadyForQueue = true;
                             socketTrackers[0].sock.Close();
                             socketTrackers.RemoveAt(0);
+                            ReadyForQueue = true;
                         }
                     }
                 }
@@ -1170,7 +1173,7 @@ namespace Horizon
                     string[] split = request.Split("/");
                     if (split.Length == 4)
                     {
-                        socketTrackers.Add(new SocketTracker(split, sock, "RECV"));
+                        socketTrackers.Add(new SocketTracker(split, sock, "SEND"));
                         WaitForSendFileAccept(split, sock);
                     }
                 }

@@ -116,7 +116,7 @@
                         <FlyoutBase.AttachedFlyout>
                             <MenuFlyout ShowMode="TransientWithDismissOnPointerMoveAway" Placement="Bottom">
                                 <MenuFlyoutItem Text="Send File" Click="SendFileFlyoutItem_Click"/>
-                                <MenuFlyoutItem Text="Receive File" Click="ReceiveFileFlyoutItem_Click"/>
+                                <MenuFlyoutItem Text="Request File" Click="ReceiveFileFlyoutItem_Click"/>
                                 <MenuFlyoutItem Text="Delete Contact" Click="DeleteContact_Click"/>
                             </MenuFlyout>
                         </FlyoutBase.AttachedFlyout>
@@ -175,7 +175,7 @@
         <ContentDialog x:Name="RequestFile"
                        PrimaryButtonText="Choose File" PrimaryButtonClick="RequestFile_PrimaryButtonClick"
                        CloseButtonText="Deny" CloseButtonClick="RequestFile_CloseButtonClick"
-                       Grid.Row="1">
+                       Grid.Row="1" Height="auto" Width="auto" HorizontalContentAlignment="Center">
         </ContentDialog>
         <controls:TeachingTip x:Name="InformationTip"
                             Title="Info"
