@@ -3,20 +3,19 @@
 ## Adding a contact
 Adding a contact requires two things
 - A unique name </br>
-
     Each contact must have a unique name from others on your own list. 
 - Their Public IP </br>
-
-    This can be easily found by the clicking the globe icon in the top left of the application. 
+    This can be easily found by the clicking the globe icon in the top left of the application. </br>
+    ![Globe](https://github.com/EpsiRho/Horizon/blob/main/Assets/Globe.png)
 
 You can add a new contact any time from the top bar. Your contacts list is automatically sorted alphabetically. 
 
 ## Sending / Receiving files
 ### Part One: The server
-To send or receive files one party must have their server open. You can toggle your client’s server from the button on the top bar. The color of the button indicates the server status. 
-(Red = offline | Green = online)
+To send or receive files one party must have their server open. You can toggle your client’s server from the button on the top bar. The color of the button indicates the server status. </br>
+![Red Status](https://github.com/EpsiRho/Horizon/blob/main/Assets/RedStatus.png) Offline </br>
+![Green Status](https://github.com/EpsiRho/Horizon/blob/main/Assets/GreenStatus.png) Online </br>
 To start the server you must port forward Port 47 on your router for others to connect to your server.
-[6:55 AM]
 ### Part Two: Sending a file
 You can send a file to anyone who has their server open. Simply click on a contact and select “Send File” From the drop down men, then pick any file from the file picker. This will send a notification to the contact and ask them to accept or deny the request. 
 
@@ -29,6 +28,7 @@ You can request files from a contact with their server open. This allows you to 
 ## Options
 There are a few settings you can use to adjust your Horizon experience. 
 - Accent color
+    - Blue, Green, Red, Yellow, Purple, and Pink
 - Allow IPs not in your contacts
-- Connection timeout(the time to wait for a connection to a server)
-- Request timeout(the time to wait for a contact to respond)
+- Connection timeout(the time to wait for a connection to a server *In Milliseconds*)
+- Request timeout(the time to wait for a contact to respond *In Milliseconds*)
