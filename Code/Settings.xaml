@@ -19,7 +19,7 @@
                     <AcrylicBrush x:Key="ButtonAccentBrush"
                           BackgroundSource="HostBackdrop"
                           TintColor="{x:Bind AccentColor}"
-                          TintOpacity="0.5"
+                          TintOpacity="0.9"
                           FallbackColor="{x:Bind AccentColor}"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>

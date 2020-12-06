@@ -15,7 +15,7 @@
                     <AcrylicBrush x:Key="TopBar"
                           BackgroundSource="HostBackdrop"
                           TintColor="{x:Bind AccentColor}"
-                          TintOpacity="0.6" 
+                          TintOpacity="0.8" 
                           FallbackColor="{x:Bind AccentColor}"/>
                     <AcrylicBrush x:Key="ContactArea"
                           BackgroundSource="HostBackdrop"
@@ -116,6 +116,7 @@
                         <FlyoutBase.AttachedFlyout>
                             <MenuFlyout ShowMode="TransientWithDismissOnPointerMoveAway" Placement="Bottom">
                                 <MenuFlyoutItem Text="Send File" Click="SendFileFlyoutItem_Click"/>
+                                <MenuFlyoutItem Text="Receive File" Click="ReceiveFileFlyoutItem_Click"/>
                                 <MenuFlyoutItem Text="Delete Contact" Click="DeleteContact_Click"/>
                             </MenuFlyout>
                         </FlyoutBase.AttachedFlyout>
@@ -169,8 +170,12 @@
                 <TextBlock Text="File Size" TextAlignment="Right" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="0"/>
                 <TextBlock x:Name="SentFileName" TextAlignment="Left" Margin="0,0,0,0" Grid.Column="0" Grid.Row="1"/>
                 <TextBlock x:Name="SentFileSize" TextAlignment="Right" Grid.Column="1" Grid.Row="1"/>
-                <TextBlock x:Name="TrackerID" Width="0" Height="0"/>
             </Grid>
+        </ContentDialog>
+        <ContentDialog x:Name="RequestFile"
+                       PrimaryButtonText="Choose File" PrimaryButtonClick="RequestFile_PrimaryButtonClick"
+                       CloseButtonText="Deny" CloseButtonClick="RequestFile_CloseButtonClick"
+                       Grid.Row="1">
         </ContentDialog>
         <controls:TeachingTip x:Name="InformationTip"
                             Title="Info"

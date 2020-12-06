@@ -31,7 +31,7 @@
         <ScrollViewer>
             <StackPanel>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="About" TextWrapping="Wrap" TextDecorations="Underline" FontSize="32"/>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,20" Text="b0.3.3" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,20" Text="b0.3.4" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
                 <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,0" Text="Adding a friend:" TextWrapping="Wrap" TextDecorations="Underline" FontSize="28"/>
                 <controls:DockPanel>
                     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,0,0" Text="•" TextWrapping="Wrap" FontSize="22"/>

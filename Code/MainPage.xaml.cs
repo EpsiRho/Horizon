@@ -36,10 +36,12 @@ namespace Horizon
         {
             public string[] args;
             public Socket sock;
-            public SocketTracker(string[] args, Socket sock)
+            public string RQ;
+            public SocketTracker(string[] args, Socket sock, string RQ)
             {
                 this.args = args;
                 this.sock = sock;
+                this.RQ = RQ;
             }
         }
         List<SocketTracker> socketTrackers = new List<SocketTracker>();
@@ -416,6 +418,11 @@ namespace Horizon
                 WriteLog("[Filesystem] - Access Denied\n");
             }
         }
+        private void ReceiveFileFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            Thread fileHandler = new Thread(FileReceiveRequestHandler);
+            fileHandler.Start();
+        }
         public void DeleteContact_Click(object sender, RoutedEventArgs e)
         {
             Contact item = (Contact)ContactsListView.SelectedItem;
@@ -524,6 +531,40 @@ namespace Horizon
         {
             IPButtonTip.IsOpen = true;
         }
+        private async void RequestFile_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Define and show the file picker
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
+            picker.FileTypeFilter.Add("*");
+            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
+            //IRandomAccessStream filestream = await file.OpenAsync(FileAccessMode.ReadWrite);
+
+            if (file != null) // If the file is valid
+            {
+                byte[] messageSent = Encoding.ASCII.GetBytes("HRZNACCEPT");
+                int byteSent = socketTrackers[0].sock.Send(messageSent);
+
+                Thread fileHandler = new Thread(FileSendRequestHandler);
+                fileHandler.Start(file);
+            }
+            else
+            {
+                InfoPopup("File Error", "File Access Denied");
+                WriteLog("[Filesystem] - Access Denied\n");
+            }
+        }
+        private void RequestFile_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            byte[] messageSent = Encoding.ASCII.GetBytes("HRZNDENY");
+            int byteSent = socketTrackers[0].sock.Send(messageSent);
+
+            socketTrackers[0].sock.Close();
+            socketTrackers.RemoveAt(0);
+            ReadyForQueue = true;
+            CancelBool = false;
+        }
 
         // Server Functions
         public void BeaconListen()
@@ -597,8 +638,21 @@ namespace Horizon
                             handler.Close();
                             return;
                         }
-                        SocketTracker scktkr = new SocketTracker(split, handler);
+                        SocketTracker scktkr = new SocketTracker(split, handler, "SEND");
                         socketTrackers.Add(scktkr);
+                    }
+                    else if(split.Length == 3)
+                    {
+                        if (ViewModel.searchByIp(split[1]).Contains("Unknown") && UnkownIpAllow == "false")
+                        {
+                            handler.Close();
+                            return;
+                        }
+                        if (split[1] == "Recv")
+                        {
+                            SocketTracker scktkr = new SocketTracker(split, handler, "RECV");
+                            socketTrackers.Add(scktkr);
+                        }
                     }
                 }
             }
@@ -649,8 +703,16 @@ namespace Horizon
                     if(socketTrackers.Count > 0 && ReadyForQueue == true)
                     {
                         try{
-                            WaitForFileAccept(socketTrackers[0].args, socketTrackers[0].sock);
-                            ReadyForQueue = false;
+                            if (socketTrackers[0].RQ == "SEND")
+                            {
+                                WaitForSendFileAccept(socketTrackers[0].args, socketTrackers[0].sock);
+                                ReadyForQueue = false;
+                            }
+                            else if(socketTrackers[0].RQ == "RECV")
+                            {
+                                WaitForRecvFileAccept(socketTrackers[0].args, socketTrackers[0].sock);
+                                ReadyForQueue = false;
+                            }
                         }
                         catch (Exception)
                         {
@@ -672,7 +734,7 @@ namespace Horizon
                 return;
             }
         }
-        public async System.Threading.Tasks.Task WaitForFileAccept(string[] split, Socket sock)
+        public async System.Threading.Tasks.Task WaitForSendFileAccept(string[] split, Socket sock)
         {
             string name = ViewModel.searchByIp(split[1]);
             if(name == null)
@@ -688,6 +750,35 @@ namespace Horizon
                     SentFileName.Text = split[2];
                     SentFileSize.Text = split[3];
                     AcceptFile.ShowAsync();
+                });
+
+                // cancel check
+                CancelBool = true;
+                Thread cancelCheck = new Thread(CancelCheck);
+                cancelCheck.Start(sock);
+            }
+            catch (Exception error)
+            {
+                WriteLog("[FileAcceptPopup Failure] - " + error.Message + "\n");
+                socketTrackers[0].sock.Close();
+                socketTrackers.RemoveAt(0);
+                return;
+            }
+        }
+        public async System.Threading.Tasks.Task WaitForRecvFileAccept(string[] split, Socket sock)
+        {
+            string name = ViewModel.searchByIp(split[2]);
+            if (name == null)
+            {
+                name = split[2];
+            }
+            //SendToastNotification(split);
+            try
+            {
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    RequestFile.Title = name + " is Requesting a File";
+                    RequestFile.ShowAsync();
                 });
 
                 // cancel check
@@ -928,6 +1019,88 @@ namespace Horizon
                 return;
             }
         }
+        public async void FileReceiveRequestHandler()
+        {
+            Contact selectedItem = new Contact();
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                selectedItem = (Contact)ContactsListView.SelectedItem; // Get contact object
+            });
+            // Connect to the endpoint
+            IPAddress ipAddr = IPAddress.Parse(selectedItem.IP);
+            IPEndPoint EndPoint = new IPEndPoint(ipAddr, 47);
+            Socket sock = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Connection ListItem = null;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ListItem = connectionsViewModel.AddConnection("[Requesting]", selectedItem.Name, sock);
+            });
+
+            try
+            {
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
+                sock.BeginConnect(EndPoint, new AsyncCallback(ConnectAsync), ListItem);
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(ConnectionTimeout);
+                if (!sock.Connected)
+                {
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
+                    return;
+                }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].progressBar = true;
+                });
+
+                string rq =
+                    "HRZNRQ/Recv/" +
+                    PublicIP;
+
+
+                byte[] messageSent = Encoding.ASCII.GetBytes(rq);
+                int byteSent = sock.Send(messageSent);
+
+                InfoPopup("Request Sent", "Waiting on Response");
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
+                byte[] buffer = new byte[10];
+                sock.BeginReceive(buffer, 0, 10, 0, new AsyncCallback(ReceiveAsync), ListItem);
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
+
+                string request = new string(Encoding.ASCII.GetChars(buffer));
+                if (request == "HRZNACCEPT")
+                {
+                    downloadFromClientAsync(socketTrackers[0]);
+                }
+                else if (request == "HRZNDENY")
+                {
+                    InfoPopup("Request Denied", "Server denied the request");
+                }
+                else
+                {
+                    sock.Close();
+                }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+            }
+            catch (Exception error)
+            {
+                InfoPopup("Socket Error", error.Message);
+                WriteLog("[Socket Failure] - " + error.Message + "\n");
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+                return;
+            }
+        }
         public async void SendFile(Socket fs, Windows.Storage.StorageFile file)
         {
             BasicProperties filesize = await file.GetBasicPropertiesAsync();
@@ -1010,6 +1183,5 @@ namespace Horizon
             openingChecks.IPTip = true;
         }
 
-        
     }
 }
