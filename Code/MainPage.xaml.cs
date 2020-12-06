@@ -738,7 +738,7 @@ namespace Horizon
             {
                 name = split[1];
             }
-            SendToastNotification(split);
+            //SendToastNotification(split);
             try
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -1158,8 +1158,8 @@ namespace Horizon
                     string[] split = request.Split("/");
                     if (split.Length == 4)
                     {
-                        socketTrackers[0].args = split;
-                        downloadFromClientAsync(socketTrackers[0]);
+                        socketTrackers.Add(new SocketTracker(split, sock, "RECV"));
+                        WaitForSendFileAccept(split, sock);
                     }
                 }
                 else if (request == "HRZNDENY")
