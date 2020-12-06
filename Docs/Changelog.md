@@ -29,3 +29,6 @@
 * Changes
 	* Changed "Receive File" to "Request File"
 	* Cancel Flyout not closes the socket rather than letting it disconnect on it's own
+### Beta 0.3.6
+* Fixed requesting a file causes the server to only see that file (Issue #5)
+

@@ -1,0 +1,34 @@
+# About
+
+## Adding a contact
+Adding a contact requires two things
+- A unique name </br>
+
+    Each contact must have a unique name from others on your own list. 
+- Their Public IP </br>
+
+    This can be easily found by the clicking the globe icon in the top left of the application. 
+
+You can add a new contact any time from the top bar. Your contacts list is automatically sorted alphabetically. 
+
+## Sending / Receiving files
+### Part One: The server
+To send or receive files one party must have their server open. You can toggle your client’s server from the button on the top bar. The color of the button indicates the server status. 
+(Red = offline | Green = online)
+To start the server you must port forward Port 47 on your router for others to connect to your server.
+[6:55 AM]
+### Part Two: Sending a file
+You can send a file to anyone who has their server open. Simply click on a contact and select “Send File” From the drop down men, then pick any file from the file picker. This will send a notification to the contact and ask them to accept or deny the request. 
+
+### Part Three: Receiving a file as the server
+With your server open, anyone with your contact can send you a request. Requests from IPs that are not in your contacts list are disabled by default, but can be turned in the settings. When you get a request, you can see the file name and size, then accept or deny the file. Accepting it will download it into the horizon folder in your downloads. 
+
+### Part Four: Receiving a file without the server
+You can request files from a contact with their server open. This allows you to receive files without activating your own server. Requesting a file will ask the contact to pick a file or deny. If they pick a file sending/receiving will then operate as normal. 
+
+## Options
+There are a few settings you can use to adjust your Horizon experience. 
+- Accent color
+- Allow IPs not in your contacts
+- Connection timeout(the time to wait for a connection to a server)
+- Request timeout(the time to wait for a contact to respond)
