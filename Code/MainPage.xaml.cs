@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -278,15 +279,17 @@ namespace Horizon
         }
         public async void WriteLog(string Log)
         {
+            Log.Replace("\n", " ");
             Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            StorageFile logFile = await localFolder.CreateFileAsync("Logs.txt",
-                CreationCollisionOption.OpenIfExists);
+            StorageFile logFile = await localFolder.CreateFileAsync("Logs.txt", CreationCollisionOption.OpenIfExists);
+            DateTime localDate = DateTime.Now;
+            var culture = new CultureInfo("en-US");
             var stream = await logFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(stream.Size))
             {
                 using (var dataWriter = new Windows.Storage.Streams.DataWriter(outputStream))
                 {
-                    byte[] fileBuffer = Encoding.ASCII.GetBytes(Convert.ToString(Log));
+                    byte[] fileBuffer = Encoding.ASCII.GetBytes(Convert.ToString("(" + localDate.ToString(culture) + ")" + Log + "\n"));
                     dataWriter.WriteBytes(fileBuffer);
                     await dataWriter.StoreAsync();
                     await outputStream.FlushAsync();
@@ -1175,7 +1178,6 @@ namespace Horizon
         }
         public async void SendFile(Connection ListItem, Windows.Storage.StorageFile file)
         {
-            socketTrackers.RemoveAt(0);
             BasicProperties filesize = await file.GetBasicPropertiesAsync();
             var size = filesize.Size;
             byte[] oSizeStr = Encoding.ASCII.GetBytes(Convert.ToString(filesize.Size));

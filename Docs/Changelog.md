@@ -32,3 +32,6 @@
 * Changed Help/About Text to reflect [About.md](https://github.com/EpsiRho/Horizon/blob/main/Docs/About.mdown)
 * Minor Code Cleanup
 * Removed Help Teaching Tips
+#### Beta 0.3.6.1 Patch
+* One stray line got left on line 1181 causing a crash when sending a file
+* Adjusted some text in the help menu

@@ -106,6 +106,7 @@ namespace Horizon
             else
             {
                 ConnectionTimeoutPopup.IsOpen = true;
+                AcceptTimeoutPopup.IsOpen = false;
                 TimeoutError.IsOpen = false;
             }
         }
@@ -119,6 +120,7 @@ namespace Horizon
             else
             {
                 AcceptTimeoutPopup.IsOpen = true;
+                ConnectionTimeoutPopup.IsOpen = false;
                 TimeoutError.IsOpen = false;
             }
         }
