@@ -41,11 +41,6 @@
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
             <Button x:Name="ShowIPButton" ToolTipService.ToolTip="Show your computer's IP" Click="ShowIPButton_Click">
                 <Button.Resources>
-                    <controls:TeachingTip x:Name="IPButtonTip"
-                            Target="{x:Bind ShowIPButton}"
-                            Title="See Your IP"
-                            Subtitle="Click this anytime to see your public IP." Closing="IPButtonTip_Closing">
-                    </controls:TeachingTip>
                     <controls:TeachingTip x:Name="ShowIPToolTip"
                                           Target="{x:Bind ShowIPButton}"
                                           Title="Your Public IP:"
@@ -65,27 +60,8 @@
                     <SymbolIcon Symbol="Globe" Margin="0,0,10,0"/>
                     <TextBlock Text="Server Toggle"/>
                 </StackPanel>
-                <Button.Resources>
-                    <controls:TeachingTip x:Name="ServerToggleTip"
-                            Target="{x:Bind ServerToggle}"
-                            Title="Toggle the Receiving Server"
-                            Subtitle="The color of the button tells the server status.">
-                    </controls:TeachingTip>
-                </Button.Resources>
-                <FlyoutBase.AttachedFlyout>
-                    <Flyout>
-                        <TextBlock x:Name="ServerToggleFlyoutText" Text="Server Activated Successfully"/>
-                    </Flyout>
-                </FlyoutBase.AttachedFlyout>
             </Button>
             <Button x:Name="AddContactButton" VerticalAlignment="Center" ToolTipService.ToolTip="Add a new contact" Margin="0,0,10,0" Height="33" Click="AddContactButton_Click">
-                <Button.Resources>
-                    <controls:TeachingTip x:Name="AddContactButtonTip"
-                            Target="{x:Bind AddContactButton}"
-                            Title="Adding Contacts"
-                            Subtitle="You can add new contacts with their public IP Here." CloseButtonClick="AddContactButtonTip_CloseButtonClick" Closing="AddContactButtonTip_Closing">
-                    </controls:TeachingTip>
-                </Button.Resources>
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Symbol="AddFriend" Margin="0,0,10,0"/>
                     <TextBlock Text="Add Contact"/>
@@ -203,9 +179,9 @@
                         </FlyoutBase.AttachedFlyout>
                         <TextBlock x:Name="ItemName" Text="{x:Bind filename}" TextAlignment="Center" FontSize="14"/>
                         <TextBlock Text="{x:Bind name}" TextAlignment="Center" FontSize="12"/>
-                        <muxc:ProgressBar IsIndeterminate="True" x:Name="BackgroundRunning"
+                        <muxc:ProgressBar IsIndeterminate="true" x:Name="BackgroundRunning"
                           Margin="0,0,0,3" HorizontalAlignment="Center" VerticalAlignment="Center"
-                          Visibility="Visible" Height="auto" Width="80" ShowPaused="{x:Bind progressBar}" Foreground="White" ToolTipService.ToolTip="Attempting to connect in the background"/>
+                          Visibility="Visible" Height="auto" Width="80" Foreground="White" ToolTipService.ToolTip="Attempting to connect in the background"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

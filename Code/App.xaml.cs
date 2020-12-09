@@ -31,10 +31,6 @@ namespace Horizon
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
-            openingChecks.ContactsTip = false;
-            openingChecks.IPTip = false;
-            openingChecks.ServerToggleTip = false;
-            openingChecks.ServerClosedTip = false;
             ContactsAccess.InitializeDatabase();
         }
 

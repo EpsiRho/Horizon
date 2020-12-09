@@ -19,13 +19,6 @@ using Windows.UI.Xaml.Media;
 
 namespace Horizon
 {
-    public class openingChecks
-    {
-        public static bool ContactsTip;
-        public static bool IPTip;
-        public static bool ServerToggleTip;
-        public static bool ServerClosedTip;
-    }
     public sealed partial class MainPage : Page
     {
         // Global Vars
@@ -52,6 +45,7 @@ namespace Horizon
         bool QueueActive;
         bool CancelBool;
         bool ipset;
+        bool IPopen;
         string PublicIP;
         string UnkownIpAllow;
         int ConnectionTimeout;
@@ -79,14 +73,7 @@ namespace Horizon
             chkServerStatus.Name = "chkServerStatus";
             chkServerStatus.Start();
             ipset = false;
-            if (openingChecks.ContactsTip == true)
-            {
-                AddContactButtonTip.IsOpen = true;
-            }
-            else if (openingChecks.ServerToggleTip == true)
-            {
-                ServerToggleTip.IsOpen = true;
-            }
+            IPopen = false;
             getIP();
         }
         public void GetSettings()
@@ -249,14 +236,16 @@ namespace Horizon
             }
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                if (ShowIPToolTip.IsOpen)
+                if (IPopen)
                 {
                     ShowIPToolTip.IsOpen = false;
+                    IPopen = false;
                 }
                 else
                 {
                     ShowIPToolTip.Subtitle = PublicIP;
                     ShowIPToolTip.IsOpen = true;
+                    IPopen = true;
                 }
             });
         }
@@ -279,6 +268,7 @@ namespace Horizon
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
+                InformationTip.IsOpen = false;
                 InformationTip.Title = title;
                 InformationTip.Subtitle = subtitle;
                 InformationTip.PreferredPlacement = placement;
@@ -318,7 +308,6 @@ namespace Horizon
         private void ShowIPButton_Click(object sender, RoutedEventArgs e)
         {
             HideInfoPopup();
-            IPButtonTip.IsOpen = false;
             Thread showipasync = new Thread(new ThreadStart(showIP));
             showipasync.Start();
         }
@@ -327,7 +316,6 @@ namespace Horizon
             try
             {
                 HideInfoPopup();
-                ServerToggleTip.IsOpen = false;
                 if (beaconListen.IsAlive && SocketQueue.IsAlive)
                 {
                     QueueActive = false;
@@ -364,7 +352,6 @@ namespace Horizon
         private async void AddContactButton_Click(object sender, RoutedEventArgs e)
         {
             HideInfoPopup();
-            AddContactButtonTip.IsOpen = false;
             await AddContactDialog.ShowAsync();
         }
         private void HelpButton_Click(object sender, RoutedEventArgs e)
@@ -381,9 +368,6 @@ namespace Horizon
             else
             {
                 this.Frame.Navigate(typeof(Help));
-                openingChecks.ContactsTip = false;
-                openingChecks.IPTip = false;
-                openingChecks.ServerToggleTip = false;
             }
         }
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
@@ -400,9 +384,6 @@ namespace Horizon
             else
             {
                 this.Frame.Navigate(typeof(Settings));
-                openingChecks.ContactsTip = false;
-                openingChecks.IPTip = false;
-                openingChecks.ServerToggleTip = false;
             }
         }
 
@@ -526,7 +507,7 @@ namespace Horizon
 
             Thread downloadThread = new Thread(downloadFromClientAsync);
             downloadThread.Start(socketTrackers[0]);
-            CancelBool = false;
+            
         }
         private void AcceptFile_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
@@ -537,10 +518,6 @@ namespace Horizon
             socketTrackers.RemoveAt(0);
             ReadyForQueue = true;
             CancelBool = false;
-        }
-        private void AddContactButtonTip_CloseButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
-        {
-            IPButtonTip.IsOpen = true;
         }
         private async void RequestFile_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
@@ -689,7 +666,7 @@ namespace Horizon
                                 AcceptFile.Hide();
                                 RequestFile.Hide();
                             });
-                            socketTrackers[0].sock.Close();
+                            //socketTrackers[0].sock.Close();
                             socketTrackers.RemoveAt(0);
                             ReadyForQueue = true;
                         }
@@ -806,11 +783,19 @@ namespace Horizon
         }
         public async void downloadFromClientAsync(object tracker)
         {
+            Connection ListItem = null;
             try
             {
                 SocketTracker info = (SocketTracker)tracker;
                 Socket sock = info.sock;
                 string filename = info.args[2];
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    ListItem = connectionsViewModel.AddConnection(filename, ViewModel.searchByIp(info.args[1]), sock);
+                });
+                socketTrackers.RemoveAt(0);
+                CancelBool = false;
+                ReadyForQueue = true;
 
                 byte[] sizeBuf = new byte[1024];
                 sock.Receive(sizeBuf);
@@ -818,14 +803,22 @@ namespace Horizon
                 byte[] okBuf = Encoding.ASCII.GetBytes(Convert.ToString("\n"));
                 sock.Send(okBuf);
 
+                for (int i = 0; i < connectionsViewModel.Connections.Count; i++)
+                {
+                    if(connectionsViewModel.Connections[i].sock == sock)
+                    {
+                        ListItem = connectionsViewModel.Connections[i];
+                        break;
+                    }
+                }
                 UInt64 oSize = Convert.ToUInt64(Encoding.ASCII.GetString(sizeBuf));
                 UInt64 size = 0;
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     InformationTip.IsOpen = false;
-                    DownloadProgress.Maximum = oSize;
-                    DownloadProgress.Visibility = Visibility.Visible;
-                    ProgressText.Text = "Downloading \"" + filename + "\"";
+                    ProgressBar bar = FindDescendant<ProgressBar>(ConnectionsView.ItemContainerGenerator.ContainerFromIndex(ConnectionsView.Items.IndexOf(ListItem)));
+                    bar.IsIndeterminate = false;
+                    bar.Maximum = oSize;
                 });
                 StorageFile file = null;
                 try
@@ -836,13 +829,6 @@ namespace Horizon
                 {
                     InfoPopup("File Error", "File Already Exists");
                     WriteLog("[Filesystem] - File Already Exists\n");
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        DownloadProgress.Visibility = Visibility.Collapsed;
-                        ProgressText.Text = "";
-                        socketTrackers[0].sock.Close();
-                        socketTrackers.RemoveAt(0);
-                    });
                     ReadyForQueue = true;
                     return;
                 }
@@ -864,21 +850,21 @@ namespace Horizon
                             await outputStream.FlushAsync();
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                             {
-                                DownloadProgress.Value = size;
+                                ProgressBar bar = FindDescendant<ProgressBar>(ConnectionsView.ItemContainerGenerator.ContainerFromIndex(ConnectionsView.Items.IndexOf(ListItem)));
+                                bar.Value = size;
                             });
                         }
                     }
                 }
                 stream.Dispose();
-                socketTrackers.RemoveAt(0);
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    DownloadProgress.Visibility = Visibility.Collapsed;
-                    ProgressText.Text = "";
-                });
 
                 InfoPopup("Download Complete", filename + " was downloaded");
                 ReadyForQueue = true;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
             }
             catch (Exception error)
             {
@@ -886,12 +872,10 @@ namespace Horizon
                 WriteLog("[Socket Failure] - " + error.Message + "\n");
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    DownloadProgress.Visibility = Visibility.Collapsed;
-                    ProgressText.Text = "";
+                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                    connectionsViewModel.RemoveConnection(ListItem);
                 });
-                socketTrackers[0].sock.Close();
                 ReadyForQueue = true;
-                socketTrackers.RemoveAt(0);
                 return;
             }
         }
@@ -974,10 +958,6 @@ namespace Horizon
                     });
                     return;
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].progressBar = true;
-                });
 
                 string rq =
                     "HRZNRQ/" +
@@ -1002,7 +982,7 @@ namespace Horizon
                 string request = new string(Encoding.ASCII.GetChars(buffer));
                 if(request == "HRZNACCEPT")
                 {
-                    SendFile(sock, file);
+                    SendFile(connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)], file);
                 }
                 else if (request == "HRZNDENY")
                 {
@@ -1012,11 +992,8 @@ namespace Horizon
                 {
                     sock.Close();
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
+                ReadyForQueue = true;
+                CancelBool = false;
             }
             catch (Exception error)
             {
@@ -1026,6 +1003,8 @@ namespace Horizon
                 {
                     connectionsViewModel.RemoveConnection(ListItem);
                 });
+                ReadyForQueue = true;
+                CancelBool = false;
                 return;
             }
         }
@@ -1058,10 +1037,6 @@ namespace Horizon
                     });
                     return;
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].progressBar = true;
-                });
 
                 string rq =
                     "HRZNACCEPT/" +
@@ -1086,7 +1061,7 @@ namespace Horizon
                 string request = new string(Encoding.ASCII.GetChars(buffer));
                 if (request == "HRZNACCEPT")
                 {
-                    SendFile(sock, file);
+                    SendFile(ListItem, file);
                 }
                 else if (request == "HRZNDENY")
                 {
@@ -1096,11 +1071,8 @@ namespace Horizon
                 {
                     sock.Close();
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
+                ReadyForQueue = true;
+                CancelBool = false;
             }
             catch (Exception error)
             {
@@ -1110,6 +1082,8 @@ namespace Horizon
                 {
                     connectionsViewModel.RemoveConnection(ListItem);
                 });
+                ReadyForQueue = true;
+                CancelBool = false;
                 return;
             }
         }
@@ -1144,10 +1118,6 @@ namespace Horizon
                     });
                     return;
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].progressBar = true;
-                });
 
                 string rq =
                     "HRZNRQ/Recv/" +
@@ -1187,7 +1157,6 @@ namespace Horizon
                 }
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
                     connectionsViewModel.RemoveConnection(ListItem);
                 });
             }
@@ -1199,23 +1168,26 @@ namespace Horizon
                 {
                     connectionsViewModel.RemoveConnection(ListItem);
                 });
+                ReadyForQueue = true;
+                CancelBool = false;
                 return;
             }
         }
-        public async void SendFile(Socket fs, Windows.Storage.StorageFile file)
+        public async void SendFile(Connection ListItem, Windows.Storage.StorageFile file)
         {
+            socketTrackers.RemoveAt(0);
             BasicProperties filesize = await file.GetBasicPropertiesAsync();
             var size = filesize.Size;
             byte[] oSizeStr = Encoding.ASCII.GetBytes(Convert.ToString(filesize.Size));
-            fs.Send(oSizeStr);
+            connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].sock.Send(oSizeStr);
             byte[] okBuf = new byte[1];
-            fs.Receive(okBuf);
+            connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].sock.Receive(okBuf);
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 InformationTip.IsOpen = false;
-                DownloadProgress.Maximum = size;
-                DownloadProgress.Visibility = Visibility.Visible;
-                ProgressText.Text = "Uploading \"" + file.Name + "\"";
+                ProgressBar bar = FindDescendant<ProgressBar>(ConnectionsView.ItemContainerGenerator.ContainerFromIndex(ConnectionsView.Items.IndexOf(ListItem)));
+                bar.IsIndeterminate = false;
+                bar.Maximum = size;
             });
             ulong sizeSent = 0;
             byte[] buffer = new byte[10240];
@@ -1231,38 +1203,33 @@ namespace Horizon
                     {
                         await dataReader.LoadAsync((uint)10240);
                         dataReader.ReadBytes(buffer);
-                        sizeSent += (ulong)fs.Send(buffer);
+                        sizeSent += (ulong)connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].sock.Send(buffer);
                     }
                     else
                     {
                         await dataReader.LoadAsync((uint)(size - sizeSent));
                         var buf = dataReader.ReadBuffer((uint)(size - sizeSent));
                         CryptographicBuffer.CopyToByteArray(buf, out buffer);
-                        sizeSent += (ulong)fs.Send(buffer);
+                        sizeSent += (ulong)connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].sock.Send(buffer);
                     }
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        DownloadProgress.Value = sizeSent;
+                        ProgressBar bar = FindDescendant<ProgressBar>(ConnectionsView.ItemContainerGenerator.ContainerFromIndex(ConnectionsView.Items.IndexOf(ListItem)));
+                        bar.Value = sizeSent;
                     });
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    DownloadProgress.Visibility = Visibility.Collapsed;
-                    ProgressText.Text = "";
-                });
                 InfoPopup("Upload Complete", file.Name + " was sent");
             }
             catch (Exception error)
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    DownloadProgress.Visibility = Visibility.Collapsed;
-                    ProgressText.Text = "";
-                });
                 InfoPopup("Upload Failed", error.Message);
                 WriteLog("[Upload Failure] - " + error.Message + "\n");
-                return;
             }
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                connectionsViewModel.RemoveConnection(ListItem);
+            });
         }
 
         // Handler Functions
@@ -1270,19 +1237,35 @@ namespace Horizon
         {
             NameInput.Text = "";
             IPInput.Text = "";
-            if(openingChecks.IPTip == true){
-                IPButtonTip.IsOpen = true;
-            }
         }
-        private void IPButtonTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
+        public T FindDescendant<T>(DependencyObject obj) where T : DependencyObject
         {
-            openingChecks.IPTip = false;
-            openingChecks.ContactsTip = false;
-        }
-        private void AddContactButtonTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
-        {
-            openingChecks.IPTip = true;
-        }
+            // Check if this object is the specified type
+            if (obj is T)
+                return obj as T;
 
+            // Check for children
+            int childrenCount = VisualTreeHelper.GetChildrenCount(obj);
+            if (childrenCount < 1)
+                return null;
+
+            // First check all the children
+            for (int i = 0; i < childrenCount; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child is T)
+                    return child as T;
+            }
+
+            // Then check the childrens children
+            for (int i = 0; i < childrenCount; i++)
+            {
+                DependencyObject child = FindDescendant<T>(VisualTreeHelper.GetChild(obj, i));
+                if (child != null && child is T)
+                    return child as T;
+            }
+
+            return null;
+        }
     }
 }

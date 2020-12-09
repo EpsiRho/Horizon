@@ -30,15 +30,10 @@ namespace Horizon
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             AccentColor = (string)localSettings.Values["Accent"];
             this.InitializeComponent();
-            if(openingChecks.ServerClosedTip == true)
-            {
-                ServerClosedTip.IsOpen = true;
-            }
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            openingChecks.ServerClosedTip = false;
             this.Frame.Navigate(typeof(MainPage));
         }
 
@@ -47,31 +42,24 @@ namespace Horizon
             await Windows.System.Launcher.LaunchUriAsync(new Uri("https://www.noip.com/support/knowledgebase/general-port-forwarding-guide/"));
         }
 
-        private void AddContactLink_Click(object sender, RoutedEventArgs e)
+        private async void KofiButton_LinkClicked(object sender, RoutedEventArgs e)
         {
-            openingChecks.ContactsTip = true;
-            openingChecks.ServerClosedTip = false;
-            this.Frame.Navigate(typeof(MainPage));
-        }
-
-        private void ServerToggleLink_Click(object sender, RoutedEventArgs e)
-        {
-            openingChecks.ServerToggleTip = true;
-            openingChecks.ServerClosedTip = false;
-            this.Frame.Navigate(typeof(MainPage));
-        }
-
-        private async void KofiButton_LinkClicked(object sender, Microsoft.Toolkit.Uwp.UI.Controls.LinkClickedEventArgs e)
-        {
-            if (Uri.TryCreate(e.Link, UriKind.Absolute, out Uri link))
-            {
-                await Launcher.LaunchUriAsync(link);
-            }
+            await Launcher.LaunchUriAsync(new Uri("https://ko-fi.com/R6R02T2FQ"));
         }
 
         private async void emaillink_Click(object sender, RoutedEventArgs e)
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("mailto:epsilon@epsirho.com"));
+        }
+
+        private async void GithubButton_Click(object sender, RoutedEventArgs e)
+        {
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/EpsiRho/Horizon"));
+        }
+
+        private void TutButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainPage));
         }
     }
 }

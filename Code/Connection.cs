@@ -15,7 +15,9 @@ namespace Horizon
         public string name { get; set; }
         public ManualResetEvent handler;
         public Socket sock;
-        public bool progressBar;
+        public bool progressBarStatus;
+        public double progressBarMax;
+        public double progressbarValue;
         public Connection()
         {
             this.filename = "null";
@@ -39,7 +41,7 @@ namespace Horizon
                 name = Name,
                 handler = new ManualResetEvent(false),
                 sock = Sock,
-                progressBar = false
+                progressBarStatus = true
             });
             return connections[connections.Count() - 1];
         }

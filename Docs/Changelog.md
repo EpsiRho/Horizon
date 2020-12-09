@@ -30,3 +30,5 @@
 * Added support for multiple downloads
 * Adjusted Help/About layout 
 * Changed Help/About Text to reflect [About.md](https://github.com/EpsiRho/Horizon/blob/main/Docs/About.mdown)
+* Minor Code Cleanup
+* Removed Help Teaching Tips

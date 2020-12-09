@@ -17,66 +17,63 @@
                           TintColor="Black"
                           TintOpacity="0.8"
                           FallbackColor="Black"/>
+                    <AcrylicBrush x:Key="ButtonBackground"
+                          BackgroundSource="HostBackdrop"
+                          TintColor="{x:Bind AccentColor}"
+                          TintOpacity="0.9"
+                          FallbackColor="{x:Bind AccentColor}"/>
+                    <AcrylicBrush x:Key="Donate"
+                          BackgroundSource="HostBackdrop"
+                          TintColor="Red"
+                          TintOpacity="0.8"
+                          FallbackColor="Red"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Page.Resources>
     <Grid Background="{ThemeResource HelpBackgroundBrush}">
-        <Button x:Name="BackButton" VerticalAlignment="Top" Margin="10,10,0,0" Height="33" Click="BackButton_Click" Canvas.ZIndex="10" >
+        <Button x:Name="BackButton" Background="{ThemeResource ButtonBackground}" VerticalAlignment="Top" Margin="10,10,0,0" Height="33" Click="BackButton_Click" Canvas.ZIndex="10" >
             <StackPanel Orientation="Horizontal">
                 <SymbolIcon Symbol="Back" Margin="0,0,10,0" Foreground="White"/>
                 <TextBlock Text="Back" Foreground="White"/>
             </StackPanel>
         </Button>
+
         <ScrollViewer>
-            <StackPanel>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="About" TextWrapping="Wrap" TextDecorations="Underline" FontSize="32"/>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,20" Text="b0.3.5" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,0" Text="Adding a friend:" TextWrapping="Wrap" TextDecorations="Underline" FontSize="28"/>
-                <controls:DockPanel>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,0,0" Text="•" TextWrapping="Wrap" FontSize="22"/>
-                    <HyperlinkButton x:Name="AddContactLink" Foreground="{x:Bind AccentColor}" Click="AddContactLink_Click">
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-6,0,0" Text=" Add a contact" TextWrapping="Wrap" FontSize="22" />
-                    </HyperlinkButton>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="0,0,25,0" Text=" with a unique name and their public IP." TextWrapping="Wrap" FontSize="22"/>
-                </controls:DockPanel>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• Your public IP can be shown by the globe button on the left." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,20" Text="• You can delete any contacts by right-clicking on them and hitting 'Delete Contact' from the context menu." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,0" Text="Sending a File:" TextWrapping="Wrap" TextDecorations="Underline" FontSize="28"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• Double Click on any contact to pull up the file picker." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• Pick a file and your contact will be notified." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• You can send multiple files at a time." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,0" Text="Receiving a File:" TextWrapping="Wrap" TextDecorations="Underline" FontSize="28"/>
-                <controls:DockPanel>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,0,5" Text="• Click the '" TextWrapping="Wrap" FontSize="22"/>
-                    <HyperlinkButton x:Name="ServerToggleLink" Foreground="{x:Bind AccentColor}" Click="ServerToggleLink_Click">
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-6,0,5" Text="Server Toggle" TextWrapping="Wrap" FontSize="22"/>
-                    </HyperlinkButton>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="0,0,25,5" Text="' Button to turn on the server." TextWrapping="Wrap" FontSize="22"/>
-                </controls:DockPanel>
-                <HyperlinkButton x:Name="PortForwardingLink" Foreground="{x:Bind AccentColor}" Click="PortForwardingLink_Click">
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="25,-15,25,-3" Text="• You will need to have port 47 port forwarded on your router." TextWrapping="Wrap" FontWeight="Bold" FontSize="22"/>
-                </HyperlinkButton>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• When a contact sends you a file you'll get a push notification and a popup in-app." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,5" Text="• You can Accept or Deny the request." TextWrapping="Wrap" FontSize="22"/>
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,25,50" Text="• Requests are put into a queue as long as the sever is open and only one file can download at a time." TextWrapping="Wrap" FontSize="22"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Margin="25,0,0,0" Text="My Email: " TextWrapping="Wrap" FontSize="22"/>
-                    <HyperlinkButton x:Name="emaillink" Foreground="{x:Bind AccentColor}" Click="emaillink_Click">
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-7,25,0" Text=" epsilon@epsirho.com" TextWrapping="Wrap" FontWeight="Bold" FontSize="22"/>
-                    </HyperlinkButton>
+            <StackPanel Orientation="Vertical">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="Help and About" TextWrapping="Wrap" TextDecorations="Underline" FontSize="32"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="Version: b0.3.6" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,25,0,0">
+                    <Button x:Name="GithubButton" Background="{ThemeResource ButtonBackground}" Margin="25,0,0,0" Click="GithubButton_Click">
+                        <TextBlock Text="Github" Foreground="White" FontSize="28"/>
+                    </Button>
+                    <Button x:Name="EmailButton" Background="{ThemeResource ButtonBackground}" Margin="25,0,0,0" Click="emaillink_Click">
+                        <TextBlock Text="Email " Foreground="White" FontSize="28" />
+                    </Button>
+                    <Button x:Name="KofiButton" Background="{ThemeResource Donate}" Margin="25,0,0,0" Click="KofiButton_LinkClicked">
+                        <TextBlock Text="Donate" Foreground="White" FontSize="28"/>
+                    </Button>
                 </StackPanel>
-                <controls:MarkdownTextBlock x:Name="KofiButton" Background="{ThemeResource HelpBackgroundBrush}"
-                                            Text="[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R02T2FQ)"
-                                            Margin="25,0,25,0" Height="54" Width="230"
-                                            HorizontalAlignment="Left" LinkClicked="KofiButton_LinkClicked">
-                    
-                </controls:MarkdownTextBlock>
-                <controls1:TeachingTip x:Name="ServerClosedTip"
-                            Title="Server Shutdown"
-                            Subtitle="The server has to be shutdown while you're in the help menu">
-                </controls1:TeachingTip>
-                
+                <StackPanel>
+                    <TextBlock FontSize="28" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Adding a contact" TextDecorations="Underline"/>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="• A unique name" FontWeight="Bold"/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="       Each contact must have a unique name from others on your own list."/>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="• Their Public IP" FontWeight="Bold"/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="       This can be easily found by the clicking the globe icon in the top left of the application."/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="You can add a new contact any time from the top bar. Your contacts list is automatically sorted alphabetically. "/>
+                    <TextBlock FontSize="28" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Sending / Receiving files" TextDecorations="Underline"/>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part One: The server" FontWeight="Bold"/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="To send or receive files one party must have their server open. You can toggle your client's server from the button on the top bar. The color of the button indicates the server status."/>
+                    <HyperlinkButton Click="PortForwardingLink_Click" Foreground="{x:Bind AccentColor}">
+                        <TextBlock FontSize="20" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,-10,25,-10" Text="To start the server you must port forward Port 47 on your router for others to connect to your server."/>
+                    </HyperlinkButton>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part Two: Sending a file" FontWeight="Bold"/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="You can send a file to anyone who has their server open. Simply click on a contact and select &quot;Send File&quot; From the drop down men, then pick any file from the file picker. This will send a notification to the contact and ask them to accept or deny the request. "/>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part Three: Receiving a file as the server" FontWeight="Bold"/>
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="With your server open, anyone with your contact can send you a request. Requests from IPs that are not in your contacts list are disabled by default, but can be turned in the settings. When you get a request, you can see the file name and size, then accept or deny the file. Accepting it will download it into the horizon folder in your downloads. "/>
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part Four: Receiving a file without the server" />
+                    <TextBlock FontSize="18" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="25,0,25,0" Text="You can request files from a contact with their server open. This allows you to receive files without activating your own server. Requesting a file will ask the contact to pick a file or deny. If they pick a file sending/receiving will then operate as normal." />
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>
