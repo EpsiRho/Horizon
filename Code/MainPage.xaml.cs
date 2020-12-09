@@ -9,6 +9,7 @@ using System.Threading;
 using Windows.Security.Cryptography;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
@@ -22,10 +23,7 @@ namespace Horizon
 {
     public sealed partial class MainPage : Page
     {
-        // Global Vars
-        Thread beaconListen;
-        Thread SocketQueue;
-        string AccentColor;
+        // ------------------------------ Classes ------------------------------ //
         class SocketTracker
         {
             public string[] args;
@@ -39,6 +37,11 @@ namespace Horizon
             }
         }
         List<SocketTracker> socketTrackers = new List<SocketTracker>();
+
+        // ----------------------------- Global Vars ----------------------------- //
+        Thread beaconListen;
+        Thread SocketQueue;
+        string AccentColor;
         public ContactsViewModel ViewModel { get; set; }
         public ConnectionsViewModel connectionsViewModel { get; set; }
         public static ManualResetEvent allDone = new ManualResetEvent(false);
@@ -52,7 +55,7 @@ namespace Horizon
         int ConnectionTimeout;
         int AcceptTimeout;
 
-        // Page Load
+        // ----------------------------- Page Load ----------------------------- //
         public MainPage()
         {
             GetSettings();
@@ -61,11 +64,17 @@ namespace Horizon
         }
         public void OnLoad()
         {
+            // Set the BeaconListen thread to the Beacon Listen Function
             beaconListen = new Thread(new ThreadStart(BeaconListen));
-            beaconListen.Name = "Beacon";
+
+            // Set the SocketQueue Thread to the RequestQueue Function
             SocketQueue = new Thread(new ThreadStart(RequestQueue));
+
+            // Initialize the View Models for the contacts pane and connection bar
             this.ViewModel = new ContactsViewModel();
             this.connectionsViewModel = new ConnectionsViewModel();
+
+            // Start the server status checker
             Thread chkServerStatus = new Thread(delegate ()
             {
                 _ = CheckIfServerActiveAsync();
@@ -73,12 +82,17 @@ namespace Horizon
             chkServerStatus.IsBackground = true;
             chkServerStatus.Name = "chkServerStatus";
             chkServerStatus.Start();
+
+            // Initalize the variables for the public ip button
             ipset = false;
             IPopen = false;
+
+            // Get the public ip
             getIP();
         }
         public void GetSettings()
         {
+            // Get the Settings for the application or create them if they do not exist
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             AccentColor = (string)localSettings.Values["Accent"];
             if (AccentColor == null)
@@ -113,16 +127,20 @@ namespace Horizon
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            // Start a thread to populate the contacts pane with contacts from the database
             Thread ListViewPopulate = new Thread(new ThreadStart(PullFromDatabase));
             ListViewPopulate.Start();
         }
 
-        // Information Functions
+        // ----------------------------- Information Functions ----------------------------- //
+        // Pull contacts from the database on load
         public async void PullFromDatabase()
         {
+            // Get the names and ips from the database file
             List<string> NameList = ContactsAccess.GetNames();
             List<string> IPList = ContactsAccess.GetIPs();
 
+            // Sort and insert them in the contacts pane
             for (int i = 0; i < NameList.Count; i++)
             {
                 bool insert = false;
@@ -147,6 +165,7 @@ namespace Horizon
                 }
             }
         }
+        // Sort a newly added contact by name and add it to the contacts pane
         public async void SortName(object item)
         {
             Contact contact = (Contact)item;
@@ -171,6 +190,7 @@ namespace Horizon
                 });
             }
         }
+        // Hosted on a thread to check if the server is active and change the server toggle button's color
         public async System.Threading.Tasks.Task CheckIfServerActiveAsync()
         {
             bool isHover = false;
@@ -204,6 +224,7 @@ namespace Horizon
                 }
             }
         }
+        // Sends a toast notification based on the request 
         public void SendToastNotification(string[] args)
         {
             ToastContent content;
@@ -228,6 +249,7 @@ namespace Horizon
             // And show it!
             ToastNotificationManager.CreateToastNotifier().Show(notif);
         }
+        // Show the ip button's flyout with your ip
         private async void showIP()
         {
             if (!ipset)
@@ -250,6 +272,7 @@ namespace Horizon
                 }
             });
         }
+        // Get the public ip of the user
         private void getIP()
         {
             try
@@ -265,6 +288,7 @@ namespace Horizon
                 getIP();
             }
         }
+        // Shows a popup with set information
         public async void InfoPopup(string title, string subtitle, Microsoft.UI.Xaml.Controls.TeachingTipPlacementMode placement = Microsoft.UI.Xaml.Controls.TeachingTipPlacementMode.Top, object target = null)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -277,6 +301,7 @@ namespace Horizon
                 InformationTip.IsOpen = true;
             });
         }
+        // Writes a log to the errorlog file
         public async void WriteLog(string Log)
         {
             Log.Replace("\n", " ");
@@ -297,6 +322,7 @@ namespace Horizon
             }
             stream.Dispose();
         }
+        // Hides the info popup
         public async void HideInfoPopup()
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -306,8 +332,8 @@ namespace Horizon
             });
         }
 
-        // Buttons
-        // ---------------------------- Top Bar ---------------------------- //
+        // -------------------------------- Buttons -------------------------------- //
+        // -------------------------------- Top Bar -------------------------------- //
         private void ShowIPButton_Click(object sender, RoutedEventArgs e)
         {
             HideInfoPopup();
@@ -390,7 +416,7 @@ namespace Horizon
             }
         }
 
-        // ---------------------------- Contacts Area ---------------------------- //
+        // ----------------------------- Contacts Pane ----------------------------- //
         private async void SendFileFlyoutItem_Click(object sender, RoutedEventArgs e)
         {
             // Define and show the file picker
@@ -435,6 +461,8 @@ namespace Horizon
                 FlyoutBase.ShowAttachedFlyout(element);
             }
         }
+
+        // ---------------------------- Connections List---------------------------- //
         private void ConnectionsView_Tapped(object sender, TappedRoutedEventArgs e)
         {
             HideInfoPopup();
@@ -458,7 +486,7 @@ namespace Horizon
             }
         }
 
-        // ---------------------------- Dialog Buttons ---------------------------- //
+        // ----------------------------- Dialog Buttons ----------------------------- //
         private void AddContactDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             ErrorText.Text = "";
@@ -555,7 +583,8 @@ namespace Horizon
             CancelBool = false;
         }
 
-        // Server Functions
+        // ----------------------------- Server Functions ----------------------------- //
+        // Listen for incomming conenctions
         public void BeaconListen()
         {
             // Grabs local ip @ port 47
@@ -624,6 +653,8 @@ namespace Horizon
                     {
                         if (ViewModel.searchByIp(split[1]).Contains("Unknown") && UnkownIpAllow == "false")
                         {
+                            byte[] messageSent = Encoding.ASCII.GetBytes("HRZNDENY");
+                            int byteSent = handler.Send(messageSent);
                             handler.Close();
                             return;
                         }
@@ -634,6 +665,8 @@ namespace Horizon
                     {
                         if (ViewModel.searchByIp(split[1]).Contains("Unknown") && UnkownIpAllow == "false")
                         {
+                            byte[] messageSent = Encoding.ASCII.GetBytes("HRZNDENY");
+                            int byteSent = handler.Send(messageSent);
                             handler.Close();
                             return;
                         }
@@ -651,6 +684,7 @@ namespace Horizon
             }
 
         }
+        // Check for socket status and cancel if the other party cancels
         public async void CancelCheck(object data)
         {
             try
@@ -683,6 +717,7 @@ namespace Horizon
             }
 
         }
+        // Holds requests in a queue and shows the in order one by one
         public void RequestQueue()
         {
             try
@@ -724,6 +759,7 @@ namespace Horizon
                 return;
             }
         }
+        // Show the Accept / Deny Dialog
         public async System.Threading.Tasks.Task WaitForSendFileAccept(string[] split, Socket sock)
         {
             string name = ViewModel.searchByIp(split[1]);
@@ -784,6 +820,7 @@ namespace Horizon
                 return;
             }
         }
+        // Download a file
         public async void downloadFromClientAsync(object tracker)
         {
             Connection ListItem = null;
@@ -882,8 +919,94 @@ namespace Horizon
                 return;
             }
         }
+        // Send a request to send a file to a client that requested a file 
+        public async void FileSendToRequestingHandler(object data)
+        {
+            Windows.Storage.StorageFile file = (Windows.Storage.StorageFile)data;
+            Contact selectedItem = new Contact();
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                selectedItem = (Contact)ContactsListView.SelectedItem; // Get contact object
+            });
+            Windows.Storage.FileProperties.BasicProperties basicProperties = await file.GetBasicPropertiesAsync();
+            string fileSize = string.Format("{0:n0}", basicProperties.Size);
+            int id = 0;
+            Socket sock = socketTrackers[0].sock;
+            Connection ListItem = null;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ListItem = connectionsViewModel.AddConnection(file.Name, socketTrackers[0].args[2], sock);
+            });
 
-        // Client Functions
+            try
+            {
+                if (!sock.Connected)
+                {
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
+                    return;
+                }
+
+                string rq =
+                    "HRZNACCEPT/" +
+                    PublicIP +
+                    "/" +
+                    file.Name +
+                    "/" +
+                    fileSize;
+
+
+                byte[] messageSent = Encoding.ASCII.GetBytes(rq);
+                int byteSent = sock.Send(messageSent);
+
+                InfoPopup("Request Sent", "Waiting on Response");
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
+                byte[] buffer = new byte[10];
+                sock.BeginReceive(buffer, 0, 10, 0, new AsyncCallback(ReceiveAsync), ListItem);
+
+                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
+
+                string request = new string(Encoding.ASCII.GetChars(buffer));
+                if (request == "HRZNACCEPT")
+                {
+                    SendFile(ListItem, file);
+                }
+                else if (request == "HRZNDENY")
+                {
+                    InfoPopup("Send Canceled", "Client denied the request");
+                }
+                else
+                {
+                    sock.Close();
+                }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+                InfoPopup("Send Canceled", "Client denied the request");
+                ReadyForQueue = true;
+                CancelBool = false;
+            }
+            catch (Exception error)
+            {
+                InfoPopup("Socket Error", error.Message);
+                WriteLog("[Socket Failure] - " + error.Message + "\n");
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+                ReadyForQueue = true;
+                CancelBool = false;
+                return;
+            }
+        }
+
+        // ----------------------------- Client Functions ----------------------------- //
+        // Handles receives async for easy cancel on socket disconnect or user cancel
         public void ReceiveAsync(IAsyncResult ar)
         {
             try
@@ -905,6 +1028,7 @@ namespace Horizon
             }
 
         }
+        // Handles Connections async for easy cancel on socket disconnect or user cancel
         public void ConnectAsync(IAsyncResult ar)
         {
             try
@@ -926,6 +1050,7 @@ namespace Horizon
             }
 
         }
+        // Send a Request to a server to send a file
         public async void FileSendRequestHandler(object data)
         {
             Windows.Storage.StorageFile file = (Windows.Storage.StorageFile)data;
@@ -995,6 +1120,11 @@ namespace Horizon
                 {
                     sock.Close();
                 }
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    connectionsViewModel.RemoveConnection(ListItem);
+                });
+                InfoPopup("Send Canceled", "Client denied the request");
                 ReadyForQueue = true;
                 CancelBool = false;
             }
@@ -1011,85 +1141,7 @@ namespace Horizon
                 return;
             }
         }
-        public async void FileSendToRequestingHandler(object data)
-        {
-            Windows.Storage.StorageFile file = (Windows.Storage.StorageFile)data;
-            Contact selectedItem = new Contact();
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                selectedItem = (Contact)ContactsListView.SelectedItem; // Get contact object
-            });
-            Windows.Storage.FileProperties.BasicProperties basicProperties = await file.GetBasicPropertiesAsync();
-            string fileSize = string.Format("{0:n0}", basicProperties.Size);
-            int id = 0;
-            Socket sock = socketTrackers[0].sock;
-            Connection ListItem = null;
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                ListItem = connectionsViewModel.AddConnection(file.Name, socketTrackers[0].args[2], sock);
-            });
-
-            try
-            {
-                if (!sock.Connected)
-                {
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(100);
-                        connectionsViewModel.RemoveConnection(ListItem);
-                    });
-                    return;
-                }
-
-                string rq =
-                    "HRZNACCEPT/" +
-                    PublicIP +
-                    "/" +
-                    file.Name +
-                    "/" +
-                    fileSize;
-
-
-                byte[] messageSent = Encoding.ASCII.GetBytes(rq);
-                int byteSent = sock.Send(messageSent);
-
-                InfoPopup("Request Sent", "Waiting on Response");
-
-                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.Reset();
-                byte[] buffer = new byte[10];
-                sock.BeginReceive(buffer, 0, 10, 0, new AsyncCallback(ReceiveAsync), ListItem);
-
-                connectionsViewModel.Connections[connectionsViewModel.GetIndex(ListItem)].handler.WaitOne(AcceptTimeout);
-
-                string request = new string(Encoding.ASCII.GetChars(buffer));
-                if (request == "HRZNACCEPT")
-                {
-                    SendFile(ListItem, file);
-                }
-                else if (request == "HRZNDENY")
-                {
-                    InfoPopup("Send Canceled", "Client denied the request");
-                }
-                else
-                {
-                    sock.Close();
-                }
-                ReadyForQueue = true;
-                CancelBool = false;
-            }
-            catch (Exception error)
-            {
-                InfoPopup("Socket Error", error.Message);
-                WriteLog("[Socket Failure] - " + error.Message + "\n");
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
-                ReadyForQueue = true;
-                CancelBool = false;
-                return;
-            }
-        }
+        // Send a Request to be sent a file
         public async void FileReceiveRequestHandler()
         {
             Contact selectedItem = new Contact();
@@ -1162,6 +1214,7 @@ namespace Horizon
                 {
                     connectionsViewModel.RemoveConnection(ListItem);
                 });
+                InfoPopup("Send Canceled", "Client denied the request");
             }
             catch (Exception error)
             {
@@ -1176,6 +1229,7 @@ namespace Horizon
                 return;
             }
         }
+        // Send a file 
         public async void SendFile(Connection ListItem, Windows.Storage.StorageFile file)
         {
             BasicProperties filesize = await file.GetBasicPropertiesAsync();
@@ -1234,12 +1288,14 @@ namespace Horizon
             });
         }
 
-        // Handler Functions
+        // ----------------------------- Handler Functions ----------------------------- //
+        // On closing set the input boxes to empty
         private void AddContactDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
         {
             NameInput.Text = "";
             IPInput.Text = "";
         }
+        // Find the descendant of an object
         public T FindDescendant<T>(DependencyObject obj) where T : DependencyObject
         {
             // Check if this object is the specified type
@@ -1268,6 +1324,76 @@ namespace Horizon
             }
 
             return null;
+        }
+        // When the enter key is pressed close the dialog and insert the new contact(If valid)
+        private void AddContactInput_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if(e.Key == Windows.System.VirtualKey.Enter)
+            {
+                ErrorText.Text = "";
+                if (string.IsNullOrWhiteSpace(NameInput.Text))
+                {
+                    ErrorText.Text += "Name is required\n";
+                }
+
+                if (string.IsNullOrWhiteSpace(IPInput.Text))
+                {
+                    ErrorText.Text += "Ip is required\n";
+                }
+
+                List<string> names = ContactsAccess.GetNames();
+                bool alreadyTaken = false;
+                foreach (string name in names)
+                {
+                    if (NameInput.Text == name)
+                    {
+                        alreadyTaken = true;
+                        break;
+                    }
+                }
+                if (alreadyTaken == true)
+                {
+                    ErrorText.Text += "Name has been taken";
+                }
+
+                if (ErrorText.Text == "")
+                {
+                    ContactsAccess.AddData(NameInput.Text, IPInput.Text);
+
+                    if (ViewModel.Contacts.Count == 0)
+                    {
+                        ViewModel.AddContact(NameInput.Text, IPInput.Text);
+                        AddContactDialog.Hide();
+                        return;
+                    }
+                    Thread SortNewName = new Thread(SortName);
+                    SortNewName.Start(new Contact(NameInput.Text, IPInput.Text));
+                    AddContactDialog.Hide();
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        private async void OpenFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string downloadsPath = UserDataPaths.GetDefault().Downloads + "\\Horizon_ac0w67xneh28g!App";
+                bool open = await Launcher.LaunchFolderPathAsync(downloadsPath);
+                if (!open)
+                {
+                    InfoPopup("Cannot open folder", "Folder does not exist", Microsoft.UI.Xaml.Controls.TeachingTipPlacementMode.Right, OpenFolderButton);
+                    WriteLog("[Cannot Open Folder] - Folder does not exist");
+                }
+            }
+            catch (Exception err)
+            {
+                InfoPopup("Cannot open folder", err.Message, Microsoft.UI.Xaml.Controls.TeachingTipPlacementMode.Right, OpenFolderButton);
+                WriteLog("[Cannot Open Folder] - " + err.Message);
+            }
         }
     }
 }

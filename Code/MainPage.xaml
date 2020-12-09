@@ -39,7 +39,7 @@
                           Visibility="Collapsed" Height="10" Foreground="{x:Bind AccentColor}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
-            <Button x:Name="ShowIPButton" ToolTipService.ToolTip="Show your computer's IP" Click="ShowIPButton_Click">
+            <Button x:Name="ShowIPButton" ToolTipService.ToolTip="Show your computer's IP" Click="ShowIPButton_Click" Margin="0,0,10,0">
                 <Button.Resources>
                     <controls:TeachingTip x:Name="ShowIPToolTip"
                                           Target="{x:Bind ShowIPButton}"
@@ -52,7 +52,11 @@
                     <SymbolIcon Symbol="World"/>
                 </StackPanel>
             </Button>
-            <TextBlock x:Name="IPTextBox" Text="" VerticalAlignment="Center" FontSize="24"/>
+            <Button x:Name="OpenFolderButton" ToolTipService.ToolTip="Open the horizon downloads folder" Click="OpenFolderButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Folder"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,10" HorizontalAlignment="Right">
             <Button ToolTipService.ToolTip="Toggle the Server" x:Name="ServerToggle" Margin="10,0,10,0" HorizontalAlignment="left" Click="ServerToggle_Click" Background="#33FF0000">
@@ -122,10 +126,10 @@
                 </DataTemplate>
             </ContentDialog.TitleTemplate>
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                <TextBlock Text="Name" FontSize="14" TextAlignment="Center"/>
-                <TextBox x:Name="NameInput" MinWidth="150"/>
-                <TextBlock Text="IP" FontSize="14" TextAlignment="Center"/>
-                <TextBox x:Name="IPInput"/>
+                <TextBlock Text="Name" Foreground="White" FontSize="14" TextAlignment="Center"/>
+                <TextBox x:Name="NameInput" MinWidth="150" KeyDown="AddContactInput_KeyDown"/>
+                <TextBlock Text="Public IP" Foreground="White" FontSize="14" TextAlignment="Center"/>
+                <TextBox x:Name="IPInput" KeyDown="AddContactInput_KeyDown"/>
                 <TextBlock x:Name="ErrorText" FontSize="16" Text="" TextAlignment="Center" Foreground="Red" Margin="0,20,0,0"/>
             </StackPanel>
         </ContentDialog>

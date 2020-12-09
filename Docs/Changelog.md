@@ -35,3 +35,9 @@
 #### Beta 0.3.6.1 Patch
 * One stray line got left on line 1181 causing a crash when sending a file
 * Adjusted some text in the help menu
+### Beta 0.3.7
+* Hitting the enter key while in the add contact dialog boxes will act like hitting the add button
+* More Code Cleanup and Commenting
+* Fixed an issue with the connection list item not closing when sending a file was denied
+* Added a button to quickly open the file explorer at the downloads location
+* Updated Github link and Email link
