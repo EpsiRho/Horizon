@@ -4,7 +4,7 @@ PTP File transfer built on UWP</br>
 
 ## [Change Log](https://github.com/EpsiRho/Horizon/blob/main/Docs/Changelog.md)</br>
 
-![Horizon Main Page](https://github.com/EpsiRho/Horizon/blob/main/Assets/MainPage.png)
+![Horizon Main Page](https://github.com/EpsiRho/Horizon/blob/main/Assets/MainPage038.png)
 
 * Add Contacts With a Public IP</br>
 ![Add Contact Dialog](https://github.com/EpsiRho/Horizon/blob/main/Assets/AddContact.png)
