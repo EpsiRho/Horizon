@@ -589,7 +589,7 @@ namespace Horizon
         {
             // Grabs local ip @ port 47
             IPAddress ipAddr = IPAddress.Parse("0.0.0.0");
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, 47);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, 62832);
 
             // Create a socket with TCP
             Socket listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -1064,7 +1064,7 @@ namespace Horizon
             int id = 0;
             // Connect to the endpoint
             IPAddress ipAddr = IPAddress.Parse(selectedItem.IP);
-            IPEndPoint EndPoint = new IPEndPoint(ipAddr, 47);
+            IPEndPoint EndPoint = new IPEndPoint(ipAddr, 62832);
             Socket sock = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             Connection ListItem = null;
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -1151,7 +1151,7 @@ namespace Horizon
             });
             // Connect to the endpoint
             IPAddress ipAddr = IPAddress.Parse(selectedItem.IP);
-            IPEndPoint EndPoint = new IPEndPoint(ipAddr, 47);
+            IPEndPoint EndPoint = new IPEndPoint(ipAddr, 62832);
             Socket sock = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             Connection ListItem = null;
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>

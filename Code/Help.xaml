@@ -42,17 +42,17 @@
         <ScrollViewer>
             <StackPanel Orientation="Vertical">
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="Help and About" TextWrapping="Wrap" TextDecorations="Underline" FontSize="32"/>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="Version: b0.3.7" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" Margin="0,0,0,0" Text="Version: b0.4.0" TextWrapping="Wrap" TextDecorations="Underline" FontSize="18"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,25,0,0">
-                    <Button x:Name="GithubButton" Background="{ThemeResource ButtonBackground}" Margin="25,0,0,0" Click="GithubButton_Click">
+                    <Button x:Name="GithubButton" Background="{ThemeResource ButtonBackground}" Margin="0,0,0,0" Click="GithubButton_Click">
                         <TextBlock Text="Github" Foreground="White" FontSize="28"/>
                     </Button>
                     <Button x:Name="EmailButton" Background="{ThemeResource ButtonBackground}" Margin="25,0,0,0" Click="emaillink_Click">
                         <TextBlock Text="Email " Foreground="White" FontSize="28" />
                     </Button>
-                    <Button x:Name="KofiButton" Background="{ThemeResource Donate}" Margin="25,0,0,0" Click="KofiButton_LinkClicked">
+                    <!--<Button x:Name="KofiButton" Background="{ThemeResource Donate}" Margin="25,0,0,0" Click="KofiButton_LinkClicked">
                         <TextBlock Text="Donate" Foreground="White" FontSize="28"/>
-                    </Button>
+                    </Button>-->
                 </StackPanel>
                 <StackPanel>
                     <TextBlock FontSize="28" HorizontalAlignment="Left" Foreground="White" TextWrapping="Wrap" Margin="25,0,25,0" Text="Adding a contact" TextDecorations="Underline"/>
@@ -65,7 +65,7 @@
                     <TextBlock FontSize="22" HorizontalAlignment="Left" Foreground="White" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part One: The server" FontWeight="Bold"/>
                     <TextBlock FontSize="18" HorizontalAlignment="Left" Foreground="White" TextWrapping="Wrap" Margin="55,0,25,0" Text="To send or receive files one party must have their server open. You can toggle your client's server from the button on the top bar. The color of the button indicates the server status."/>
                     <HyperlinkButton Click="PortForwardingLink_Click" Foreground="{x:Bind AccentColor}">
-                        <TextBlock FontSize="20" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="55,-10,25,-10" Text="To start the server you must port forward Port 47 on your router for others to connect to your server."/>
+                        <TextBlock FontSize="20" HorizontalAlignment="Left" TextWrapping="Wrap" Margin="55,-10,25,-10" Text="To start the server you must port forward Port 62832 on your router for others to connect to your server."/>
                     </HyperlinkButton>
                     <TextBlock FontSize="22" HorizontalAlignment="Left" Foreground="White" TextWrapping="Wrap" Margin="25,0,25,0" Text="Part Two: Sending a file" FontWeight="Bold"/>
                     <TextBlock FontSize="18" HorizontalAlignment="Left" Foreground="White" TextWrapping="Wrap" Margin="55,0,25,0" Text="You can send a file to anyone who has their server open. Simply click on a contact and select &quot;Send File&quot; From the drop down men, then pick any file from the file picker. This will send a notification to the contact and ask them to accept or deny the request. "/>

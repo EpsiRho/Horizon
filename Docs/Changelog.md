@@ -41,3 +41,7 @@
 * Fixed an issue with the connection list item not closing when sending a file was denied
 * Added a button to quickly open the file explorer at the downloads location
 * Updated Github link and Email link
+### Beta 0.4.0
+* Removed Donate button 
+* Switched to port 62832
+* Prepping for windows store upload

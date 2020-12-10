@@ -15,7 +15,7 @@ You can add a new contact any time from the top bar. Your contacts list is autom
 To send or receive files one party must have their server open. You can toggle your client’s server from the button on the top bar. The color of the button indicates the server status. </br>
 ![Red Status](https://github.com/EpsiRho/Horizon/blob/main/Assets/RedStatus.png) Offline </br>
 ![Green Status](https://github.com/EpsiRho/Horizon/blob/main/Assets/GreenStatus.png) Online </br>
-To start the server you must port forward Port 47 on your router for others to connect to your server.
+To start the server you must port forward Port 62832 on your router for others to connect to your server.
 ### Part Two: Sending a file
 You can send a file to anyone who has their server open. Simply click on a contact and select “Send File” From the drop down men, then pick any file from the file picker. This will send a notification to the contact and ask them to accept or deny the request. 
 
