@@ -978,16 +978,21 @@ namespace Horizon
                 else if (request == "HRZNDENY")
                 {
                     InfoPopup("Send Canceled", "Client denied the request");
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
                 else
                 {
+                    InfoPopup("Send Canceled", "Client denied the request");
                     sock.Close();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
-                InfoPopup("Send Canceled", "Client denied the request");
+                socketTrackers.RemoveAt(0);
                 ReadyForQueue = true;
                 CancelBool = false;
             }
@@ -1115,15 +1120,19 @@ namespace Horizon
                 else if (request == "HRZNDENY")
                 {
                     InfoPopup("Send Canceled", "Client denied the request");
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
                 else
                 {
                     sock.Close();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
                 InfoPopup("Send Canceled", "Client denied the request");
                 ReadyForQueue = true;
                 CancelBool = false;
@@ -1205,15 +1214,19 @@ namespace Horizon
                 else if (request == "HRZNDENY")
                 {
                     InfoPopup("Request Denied", "Server denied the request");
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
                 else
                 {
                     sock.Close();
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        connectionsViewModel.RemoveConnection(ListItem);
+                    });
                 }
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    connectionsViewModel.RemoveConnection(ListItem);
-                });
                 InfoPopup("Send Canceled", "Client denied the request");
             }
             catch (Exception error)
