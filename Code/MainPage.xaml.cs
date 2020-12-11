@@ -853,6 +853,7 @@ namespace Horizon
                 }
                 UInt64 oSize = Convert.ToUInt64(Encoding.ASCII.GetString(sizeBuf));
                 UInt64 size = 0;
+                Thread.Sleep(1000);
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     InformationTip.IsOpen = false;
@@ -1208,6 +1209,10 @@ namespace Horizon
                     if (split.Length == 4)
                     {
                         socketTrackers.Add(new SocketTracker(split, sock, "SEND"));
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            connectionsViewModel.RemoveConnection(ListItem);
+                        });
                         WaitForSendFileAccept(split, sock);
                     }
                 }
